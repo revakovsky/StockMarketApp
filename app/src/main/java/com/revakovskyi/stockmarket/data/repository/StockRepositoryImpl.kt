@@ -1,8 +1,10 @@
 package com.revakovskyi.stockmarket.data.repository
 
+import com.revakovskyi.stockmarket.data.csv.CSVParser
 import com.revakovskyi.stockmarket.data.local.CompanyListingEntity
 import com.revakovskyi.stockmarket.data.local.StockDatabase
 import com.revakovskyi.stockmarket.data.mapper.toCompanyListing
+import com.revakovskyi.stockmarket.data.mapper.toCompanyListingEntity
 import com.revakovskyi.stockmarket.data.remote.StockApi
 import com.revakovskyi.stockmarket.domain.model.CompanyListing
 import com.revakovskyi.stockmarket.domain.repository.StockRepository
@@ -16,11 +18,12 @@ import javax.inject.Singleton
 
 @Singleton
 class StockRepositoryImpl @Inject constructor(
-    val api: StockApi,
-    val db: StockDatabase
+    private val api: StockApi,
+    db: StockDatabase,
+    private val companyListingsParser: CSVParser<CompanyListing>
 ) : StockRepository {
 
-    val dao = db.dao
+    private val dao = db.dao
 
     override suspend fun getCompanyListings(
         fetchFromRemote: Boolean,
@@ -43,13 +46,27 @@ class StockRepositoryImpl @Inject constructor(
 
             val remoteListings = try {
                 val response = api.getListings()
+                companyListingsParser.parse(response.byteStream())
 
             } catch (e: IOException) {
                 e.printStackTrace()
                 emit(Resource.Error(null, "Couldn't unpack the data"))
+                null
+
             } catch (e: HttpException) {
                 e.printStackTrace()
                 emit(Resource.Error(null, "Couldn't load data"))
+                null
+            }
+
+            remoteListings?.let { listings ->
+                dao.clearCompanyListings()
+                dao.insertCompanyListings(listings.map { it.toCompanyListingEntity() })
+                emit(Resource.Success(
+                    dao.searchCompanyListings("")
+                        .map { it.toCompanyListing() }
+                ))
+                emit(Resource.Loading(false))
             }
         }
     }
