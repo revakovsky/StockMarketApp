@@ -10,4 +10,5 @@ interface StockRepository {
         fetchFromRemote: Boolean,
         query: String
     ): Flow<Resource<List<CompanyListing>>>
+
 }
