@@ -2,8 +2,10 @@ package com.revakovskyi.stockmarket.di
 
 import com.revakovskyi.stockmarket.data.csv.CSVParser
 import com.revakovskyi.stockmarket.data.csv.CompanyListingsParser
+import com.revakovskyi.stockmarket.data.csv.IntradayInfoParser
 import com.revakovskyi.stockmarket.data.repository.StockRepositoryImpl
 import com.revakovskyi.stockmarket.domain.model.CompanyListing
+import com.revakovskyi.stockmarket.domain.model.IntradayInfo
 import com.revakovskyi.stockmarket.domain.repository.StockRepository
 import dagger.Binds
 import dagger.Module
@@ -20,6 +22,12 @@ abstract class RepositoryModule {
     abstract fun bindCompanyListingsParser(
         companyListingsParser: CompanyListingsParser
     ): CSVParser<CompanyListing>
+
+    @Binds
+    @Singleton
+    abstract fun bindIntradayInfoParser(
+        intradayInfoParser: IntradayInfoParser
+    ): CSVParser<IntradayInfo>
 
     @Binds
     @Singleton
