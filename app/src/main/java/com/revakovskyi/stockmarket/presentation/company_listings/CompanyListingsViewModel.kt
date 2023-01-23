@@ -19,14 +19,18 @@ class CompanyListingsViewModel @Inject constructor(
 ) : ViewModel() {
 
     var state by mutableStateOf(CompanyListingsState())
-
     private var searchJob: Job? = null
+
+    init {
+        getCompanyListings()
+    }
 
     fun onEvent(event: CompanyListingsEvent) {
         when (event) {
             is CompanyListingsEvent.Refresh -> {
                 getCompanyListings(fetchFromRemote = true)
             }
+
             is CompanyListingsEvent.OnSearchQueryChange -> {
                 state = state.copy(searchQuery = event.query)
                 searchJob?.cancel()
@@ -52,6 +56,7 @@ class CompanyListingsViewModel @Inject constructor(
                                 state = state.copy(companies = listings)
                             }
                         }
+
                         is Resource.Error -> Unit
 
                         is Resource.Loading -> {
