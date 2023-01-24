@@ -47,3 +47,4 @@ proguard/
 /app/src/main/res/xml/backup_rules.xml
 /app/src/main/res/xml/data_extraction_rules.xml
 /app/src/main/ic_launcher-playstore.png
+/app/schemas/
